@@ -22,6 +22,7 @@ void ExamplePaintSurface::setAngle(float a)
 
 void ExamplePaintSurface::addAngle(float a)
 {
+    //FIXME: this is unsafe as read/set is not atomic now ...
     const float v = copy_cast <float>(angle.load());
     setAngle(v + a);
 }
