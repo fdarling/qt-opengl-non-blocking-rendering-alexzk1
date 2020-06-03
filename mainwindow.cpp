@@ -38,9 +38,11 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 {
     QMainWindow::resizeEvent(event);
 
+    // HACK: really we should be hooking the ImageWidget::resizeEvent(), but since they will always be resized together, this works...
+    
     //in this example that will resize label which will resize gl which will resize label which will resize gl ...
-    //if (gl)
-    //  gl->surface->resize(width(), height());
+    if (gl)
+        gl->surface->resize(width(), height());
 }
 
 void MainWindow::delayedInit()
