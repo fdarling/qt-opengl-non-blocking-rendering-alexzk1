@@ -17,12 +17,13 @@ ExamplePaintSurface::ExamplePaintSurface(QScreen *targetScreen, const QSize &siz
 
 void ExamplePaintSurface::setAngle(float a)
 {
-    angle = copy_cast<uint32>(a);
+    angle = copy_cast<uint32_t>(a);
 }
 
-void ExamplePaintSurface::addAngle(int a)
+void ExamplePaintSurface::addAngle(float a)
 {
-    angle += a;
+    const float v = copy_cast <float>(angle.load());
+    setAngle(v + a);
 }
 
 void ExamplePaintSurface::setScale(int s)
@@ -40,7 +41,7 @@ void ExamplePaintSurface::paintGL()
     if (m_functions_3_0)
     {
         addAngle(timer.restart() / 100.f);
-        const float rotqube = angle.load();
+        const float rotqube = copy_cast <float>(angle.load());
         //const float rotqube = timer.elapsed() / 100.f;
         // Clear Screen And Depth Buffer
         m_functions_3_0->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

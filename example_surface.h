@@ -6,6 +6,7 @@
 #include <math.h>
 #include "offscreengl.h"
 #include <QElapsedTimer>
+#include <stdint.h>
 
 //real class wich do real draw
 class ExamplePaintSurface : public OffscreenGL
