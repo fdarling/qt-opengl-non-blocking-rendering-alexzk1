@@ -18,10 +18,12 @@ public slots:
     void setAngle(int a);
     void addAngle(int a);
     void setScale(int s); //0-100
+    void setLag(bool on);
 protected:
     QElapsedTimer timer;
     std::atomic<int32_t> angle{0};
     std::atomic<int32_t> scale{50};
+    std::atomic<bool> lag{false};
     void paintGL() override;
     void fboRealloacted(const QSize& sz) override;
     void gldPerspective(GLdouble fovx, GLdouble aspect, GLdouble zNear, GLdouble zFar);

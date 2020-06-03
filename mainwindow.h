@@ -20,6 +20,7 @@ protected:
 private slots:
     void delayedInit();
     void on_horizontalSlider_valueChanged(int value);
+    void on_Lag_checked(bool on);
 
     void on_Reset_clicked();
 
