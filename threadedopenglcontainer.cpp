@@ -41,11 +41,9 @@ void ThreadedOpenGLContainer::startThread(int fps_limit)
         const DelayMeasuredIn DELAY = std::chrono::duration_cast<DelayMeasuredIn>(std::chrono::milliseconds((fps_limit) > 0 ? static_cast<int32_t>(1000.f / fps_limit) : 1));
         while (!(*stopper))
         {
-            if (fps_limit > 0)
-            {
-                DelayBlockMs<DelayMeasuredIn> delay(DELAY);//defines FPS, however it is MS delay ...
-                (void)delay;
-            }
+
+            DelayBlockMs<DelayMeasuredIn> delay(DELAY);//defines FPS, however it is MS delay ...
+            (void)delay;
             renderStep();
         }
 
