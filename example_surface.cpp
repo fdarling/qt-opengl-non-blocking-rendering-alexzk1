@@ -30,6 +30,11 @@ void ExamplePaintSurface::setScale(int s)
     scale = s;
 }
 
+void ExamplePaintSurface::setLag(bool on)
+{
+    lag = on;
+}
+
 void ExamplePaintSurface::paintGL()
 {
     if (m_functions_3_0)
@@ -83,8 +88,8 @@ void ExamplePaintSurface::paintGL()
         m_functions_3_0->glEnd();           // End Drawing The Cube
     }
 
-    //TODO: requested delay
-    //std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    if (lag)
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
 }
 
 void ExamplePaintSurface::fboRealloacted(const QSize &sz)
