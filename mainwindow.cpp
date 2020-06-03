@@ -1,20 +1,37 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include <QLabel>
 #include <QImage>
+#include <QVBoxLayout>
+#include <QSlider>
+#include <QPushButton>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    : QMainWindow(parent), imageWidget(new ImageWidget)
 {
-    ui->setupUi(this);
+    QWidget * const dummy = new QWidget;
+    {
+        QVBoxLayout * const vbox = new QVBoxLayout(dummy);
+        vbox->addWidget(imageWidget, 1);
+        
+        QSlider * const slider = new QSlider;
+        slider->setOrientation(Qt::Horizontal);
+        slider->setRange(1, 100);
+        slider->setValue(50);
+        connect(slider, SIGNAL(valueChanged(int)), this, SLOT(on_horizontalSlider_valueChanged(int)));
+        vbox->addWidget(slider);
+        
+        QPushButton * const resetButton = new QPushButton("Reset");
+        connect(resetButton, SIGNAL(clicked()), this, SLOT(on_Reset_clicked()));
+        vbox->addWidget(resetButton);
+    }
+    setCentralWidget(dummy);
+    resize(640, 480);
     delayedInit();
 }
 
 MainWindow::~MainWindow()
 {
     gl.reset(); //prior destroying ui
-    delete ui;
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
@@ -31,7 +48,7 @@ void MainWindow::delayedInit()
     gl.reset(new GLManager<ExamplePaintSurface>());
     connect(gl->thread, &ThreadedOpenGLContainer::readyRGBA8888, this, [this](const QImage & img)
     {
-        ui->label->setPixmap(QPixmap::fromImage(img));
+        imageWidget->setImage(img);
         static bool once = true;
         if (once)
         {

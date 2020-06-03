@@ -19,6 +19,7 @@ SOURCES += \
     example_surface.cpp \
     main.cpp \
     mainwindow.cpp \
+    imagewidget.cpp \
     offscreengl.cpp \
     threadedopenglcontainer.cpp
 
@@ -28,11 +29,9 @@ HEADERS += \
     lambda_thread.h \
     locked_object.h \
     mainwindow.h \
+    imagewidget.h \
     offscreengl.h \
     threadedopenglcontainer.h
-
-FORMS += \
-    mainwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

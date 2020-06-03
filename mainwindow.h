@@ -4,15 +4,9 @@
 #include <QMainWindow>
 #include "example_surface.h"
 #include "threadedopenglcontainer.h"
+#include "imagewidget.h"
 #include <QTimer>
 #include <QPointer>
-
-QT_BEGIN_NAMESPACE
-namespace Ui
-{
-    class MainWindow;
-}
-QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
 {
@@ -30,7 +24,7 @@ private slots:
     void on_Reset_clicked();
 
 private:
-    Ui::MainWindow *ui;
+    ImageWidget *imageWidget;
     std::shared_ptr<GLManager<ExamplePaintSurface>> gl{nullptr};
 };
 #endif // MAINWINDOW_H
