@@ -49,3 +49,8 @@ void MainWindow::on_horizontalSlider_valueChanged(int value)
     if (gl)
         gl->surface->setScale(value);
 }
+
+void MainWindow::on_Reset_clicked()
+{
+    delayedInit();
+}

@@ -27,6 +27,8 @@ private slots:
     void delayedInit();
     void on_horizontalSlider_valueChanged(int value);
 
+    void on_Reset_clicked();
+
 private:
     Ui::MainWindow *ui;
     std::shared_ptr<GLManager<ExamplePaintSurface>> gl{nullptr};

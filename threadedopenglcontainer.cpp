@@ -38,11 +38,10 @@ void ThreadedOpenGLContainer::startThread()
         while (!(*stopper))
             renderStep();
 
-    }, [this]()
-    {
         const auto t = QApplication::instance()->thread();
         if (t->isRunning())
             surf->setOwningThread(t);
+
     });
     surf->setOwningThread(thread.get());
     thread->start();
