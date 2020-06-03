@@ -12,19 +12,18 @@ public:
     explicit ThreadedOpenGLContainer(OffscreenGL* surf, QObject* parent = nullptr);
     ~ThreadedOpenGLContainer() override;
 public slots:
-    void launch();
-
+    void launch(int fps_limit = 0);
 signals:
     void readyRGBA8888(const QImage& img);
 protected:
     LambdaThreadPtr thread{nullptr};
+
     void ensureThreadEnded();
 private:
-
     OffscreenGL* surf{nullptr};
     QImage lastImage;
 
-    void startThread();
+    void startThread(int fps_limit);
     void renderStep();
 };
 

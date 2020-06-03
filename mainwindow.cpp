@@ -64,7 +64,7 @@ void MainWindow::delayedInit()
         }
     }, Qt::QueuedConnection); //it is important to have Qt::QueuedConnection here
     gl->surface->resize(width(), height());
-    gl->thread->launch();
+    gl->thread->launch(60);
 }
 
 
