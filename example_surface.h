@@ -5,6 +5,7 @@
 #include <chrono>
 #include <math.h>
 #include "offscreengl.h"
+#include <QElapsedTimer>
 
 //real class wich do real draw
 class ExamplePaintSurface : public OffscreenGL
@@ -18,6 +19,7 @@ public slots:
     void addAngle(int a);
     void setScale(int s); //0-100
 protected:
+    QElapsedTimer timer;
     std::atomic<int32_t> angle{0};
     std::atomic<int32_t> scale{50};
     void paintGL() override;

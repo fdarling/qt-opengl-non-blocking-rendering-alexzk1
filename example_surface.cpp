@@ -26,7 +26,8 @@ void ExamplePaintSurface::paintGL()
 {
     if (m_functions_3_0)
     {
-        float rotqube = angle.load();
+        //float rotqube = angle.load();
+        const float rotqube = timer.elapsed() / 100.f;
         // Clear Screen And Depth Buffer
         m_functions_3_0->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // Reset The Current Modelview Matrix
@@ -74,7 +75,7 @@ void ExamplePaintSurface::paintGL()
     }
 
     //TODO: requested delay
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+    //std::this_thread::sleep_for(std::chrono::milliseconds(250));
 }
 
 void ExamplePaintSurface::fboRealloacted(const QSize &sz)
@@ -97,6 +98,7 @@ void ExamplePaintSurface::fboRealloacted(const QSize &sz)
         m_functions_3_0->glMatrixMode(GL_MODELVIEW);                         // Select The Modelview Matrix
         m_functions_3_0->glLoadIdentity();                                   // Reset The Modelview Matrix
     }
+    timer.start();
 }
 
 void ExamplePaintSurface::gldPerspective(GLdouble fovx, GLdouble aspect, GLdouble zNear, GLdouble zFar)

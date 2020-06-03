@@ -9,13 +9,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     delayedInit();
-    rotator = new QTimer(this);
-    connect(rotator, &QTimer::timeout, this, [this]()
-    {
-        if (gl)
-            gl->surface->addAngle(1);
-    });
-    rotator->start(100);
 }
 
 MainWindow::~MainWindow()

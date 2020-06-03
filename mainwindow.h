@@ -30,6 +30,5 @@ private slots:
 private:
     Ui::MainWindow *ui;
     std::shared_ptr<GLManager<ExamplePaintSurface>> gl{nullptr};
-    QPointer<QTimer> rotator{nullptr};
 };
 #endif // MAINWINDOW_H
