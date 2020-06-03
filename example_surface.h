@@ -15,12 +15,12 @@ public:
     ExamplePaintSurface(QScreen*  targetScreen = nullptr, const QSize& size = QSize (1, 1));
     ~ExamplePaintSurface() override = default;
 public slots:
-    void setAngle(int a);
-    void addAngle(int a);
+    void setAngle(float a);
+    void addAngle(float a);
     void setScale(int s); //0-100
 protected:
     QElapsedTimer timer;
-    std::atomic<int32_t> angle{0};
+    std::atomic<uint32_t> angle{0};
     std::atomic<int32_t> scale{50};
     void paintGL() override;
     void fboRealloacted(const QSize& sz) override;

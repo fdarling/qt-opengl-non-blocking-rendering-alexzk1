@@ -1,15 +1,23 @@
 #include "example_surface.h"
 
+template <class Dest, class Src>
+Dest copy_cast(Src src)
+{
+    static_assert (sizeof (Src) == sizeof (Dest), "Type sizes of Src & Dest types must be the same.");
+    Dest res;
+    memcpy(&res, &src, sizeof(res));
+    return res;
+}
 
 ExamplePaintSurface::ExamplePaintSurface(QScreen *targetScreen, const QSize &size):
     OffscreenGL(targetScreen, size)
 {
-
+    timer.start();
 }
 
-void ExamplePaintSurface::setAngle(int a)
+void ExamplePaintSurface::setAngle(float a)
 {
-    angle = a;
+    angle = copy_cast<uint32>(a);
 }
 
 void ExamplePaintSurface::addAngle(int a)
@@ -26,8 +34,9 @@ void ExamplePaintSurface::paintGL()
 {
     if (m_functions_3_0)
     {
-        //float rotqube = angle.load();
-        const float rotqube = timer.elapsed() / 100.f;
+        addAngle(timer.restart() / 100.f);
+        const float rotqube = angle.load();
+        //const float rotqube = timer.elapsed() / 100.f;
         // Clear Screen And Depth Buffer
         m_functions_3_0->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // Reset The Current Modelview Matrix
@@ -98,7 +107,6 @@ void ExamplePaintSurface::fboRealloacted(const QSize &sz)
         m_functions_3_0->glMatrixMode(GL_MODELVIEW);                         // Select The Modelview Matrix
         m_functions_3_0->glLoadIdentity();                                   // Reset The Modelview Matrix
     }
-    timer.start();
 }
 
 void ExamplePaintSurface::gldPerspective(GLdouble fovx, GLdouble aspect, GLdouble zNear, GLdouble zFar)
