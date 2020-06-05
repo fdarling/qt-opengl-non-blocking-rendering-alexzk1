@@ -1,0 +1,12 @@
+# user-specific project settings
+opengl_thread_test.pro.user
+
+# built objects and executables
+*.o
+opengl_thread_test
+
+# qmake/MOC generated files
+.qmake.stash
+Makefile
+moc_*.cpp
+moc_*.h

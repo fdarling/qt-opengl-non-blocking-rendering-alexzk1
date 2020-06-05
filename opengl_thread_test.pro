@@ -16,22 +16,22 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    example_surface.cpp \
-    main.cpp \
-    mainwindow.cpp \
-    imagewidget.cpp \
-    offscreengl.cpp \
-    threadedopenglcontainer.cpp
+    src/example_surface.cpp \
+    src/main.cpp \
+    src/mainwindow.cpp \
+    src/imagewidget.cpp \
+    src/offscreengl.cpp \
+    src/threadedopenglcontainer.cpp
 
 HEADERS += \
-    cm_ctors.h \
-    example_surface.h \
-    lambda_thread.h \
-    locked_object.h \
-    mainwindow.h \
-    imagewidget.h \
-    offscreengl.h \
-    threadedopenglcontainer.h
+    src/cm_ctors.h \
+    src/example_surface.h \
+    src/lambda_thread.h \
+    src/locked_object.h \
+    src/mainwindow.h \
+    src/imagewidget.h \
+    src/offscreengl.h \
+    src/threadedopenglcontainer.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
