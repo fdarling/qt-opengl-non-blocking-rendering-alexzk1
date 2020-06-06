@@ -1,30 +1,9 @@
 #include "example_surface.h"
 
-template <class Dest, class Src>
-Dest copy_cast(Src src)
-{
-    static_assert (sizeof (Src) == sizeof (Dest), "Type sizes of Src & Dest types must be the same.");
-    Dest res;
-    memcpy(&res, &src, sizeof(res));
-    return res;
-}
-
 ExamplePaintSurface::ExamplePaintSurface(QScreen *targetScreen, const QSize &size):
     OffscreenGL(targetScreen, size)
 {
     timer.start();
-}
-
-void ExamplePaintSurface::setAngle(float a)
-{
-    angle = copy_cast<uint32_t>(a);
-}
-
-void ExamplePaintSurface::addAngle(float a)
-{
-    //FIXME: this is unsafe as read/set is not atomic now ...
-    const float v = copy_cast <float>(angle.load());
-    setAngle(v + a);
 }
 
 void ExamplePaintSurface::setScale(int s)
@@ -41,9 +20,7 @@ void ExamplePaintSurface::paintGL()
 {
     if (m_functions_3_0)
     {
-        addAngle(timer.restart() / 100.f);
-        const float rotqube = copy_cast <float>(angle.load());
-        //const float rotqube = timer.elapsed() / 100.f;
+        const float rotqube = fmodf(static_cast<float>(timer.elapsed())/100.0f, 360.0f);
         // Clear Screen And Depth Buffer
         m_functions_3_0->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // Reset The Current Modelview Matrix
@@ -96,9 +73,9 @@ void ExamplePaintSurface::paintGL()
 
 void ExamplePaintSurface::fboRealloacted(const QSize &sz)
 {
+    imageSize = sz;
     if (m_functions_3_0)
     {
-
         m_functions_3_0->glViewport(0, 0, sz.width(), sz.height());                    // Reset The Current Viewport
         m_functions_3_0->glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         m_functions_3_0->glEnable(GL_CULL_FACE);

@@ -10,3 +10,6 @@ opengl_thread_test
 Makefile
 moc_*.cpp
 moc_*.h
+
+# debugging output files
+image.png
