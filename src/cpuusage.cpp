@@ -161,10 +161,6 @@ int CpuUsage::updateStatFromFs()
             return -1;
         cputime = std::atoi(tokens.at(13).c_str()) * 1000 / HZ;
         cputime += std::atoi(tokens.at(14).c_str()) * 1000 / HZ;
-
-        if (startedat < 0 && tokens.size() > 21)
-            startedat = std::atoi(tokens.at(21).c_str()) / sysconf(_SC_CLK_TCK);
-
     }
     else
         return -1;
