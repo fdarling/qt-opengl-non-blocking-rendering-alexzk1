@@ -90,8 +90,7 @@ void MainWindow::delayedInit()
 
     connect(oglWidget, SIGNAL(frameSwapped()), oglWidget, SLOT(update()));
 
-    //FIXME: uncomment to use mutex render/gui thread
-    //oglWidget->setThreadLock(gl->thread->getRenderLock());
+    connect(oglWidget, &GLGUIWidget::renderGlDone, gl->thread, &ThreadedOpenGLContainer::unpause);
     connect(gl->thread, &ThreadedOpenGLContainer::readyFrameOnId, this, [this](unsigned int t)
     {
         oglWidget->setTextureToUse(t);

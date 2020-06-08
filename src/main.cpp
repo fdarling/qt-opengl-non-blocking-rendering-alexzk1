@@ -17,6 +17,12 @@ int main(int argc, char *argv[])
 
     //QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
     QApplication a(argc, argv);
+
+    //auto fmt = QSurfaceFormat::defaultFormat();
+    //fmt.setSwapInterval(0); //disable vsync
+    //fmt.setSwapBehavior(QSurfaceFormat::SingleBuffer);
+    //QSurfaceFormat::setDefaultFormat(fmt);
+
     MainWindow w;
     w.show();
     return a.exec();

@@ -14,7 +14,12 @@ OffscreenGL::OffscreenGL(QOpenGLContext* guiContext, QScreen *targetScreen, cons
     bufferSize.set(size);
 
     surface = new QOffscreenSurface(targetScreen);
-    surface->setFormat(QSurfaceFormat::defaultFormat());
+
+    auto fmt = QSurfaceFormat::defaultFormat();
+    fmt.setSwapInterval(0); //disable vsync
+    fmt.setSwapBehavior(QSurfaceFormat::SingleBuffer);
+
+    surface->setFormat(fmt);
     surface->create();
 
     m_context = new QOpenGLContext();
@@ -116,7 +121,6 @@ GLuint OffscreenGL::render()
     const std::shared_ptr<QOpenGLFramebufferObject> tmp[] = {fbo, fbo2};
     const auto buf = (uses_texture()) ? tmp[buffer_index] : fbo;
 
-
     if (buf)
     {
         r = buf->texture();
@@ -129,7 +133,7 @@ GLuint OffscreenGL::render()
     return r;
 }
 
-void OffscreenGL::swapBuffer()
+void OffscreenGL::flip()
 {
     buffer_index = 1 - buffer_index;
 }

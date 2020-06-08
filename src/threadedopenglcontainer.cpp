@@ -22,14 +22,14 @@ ThreadedOpenGLContainer::~ThreadedOpenGLContainer()
     ensureThreadEnded();
 }
 
-ThreadedOpenGLContainer::MutexTPtr ThreadedOpenGLContainer::getRenderLock() const
-{
-    return renderLock;
-}
-
 void ThreadedOpenGLContainer::launch(int fps_limit)
 {
     startThread(fps_limit);
+}
+
+void ThreadedOpenGLContainer::unpause()
+{
+    paused = false;
 }
 
 void ThreadedOpenGLContainer::ensureThreadEnded()
@@ -44,8 +44,8 @@ void ThreadedOpenGLContainer::startThread(int fps_limit)
 
     thread = createInQThread([this, fps_limit](TerminateIfTruePtr stopper)
     {
-        const DelayMeasuredIn DELAY = std::chrono::duration_cast<DelayMeasuredIn>(std::chrono::milliseconds((fps_limit) > 0 ? static_cast<int32_t>(1000.f / fps_limit) : 1));
-
+        const DelayMeasuredIn DELAY = std::chrono::duration_cast<DelayMeasuredIn>(std::chrono::milliseconds((fps_limit) > 0 ?
+                                      static_cast<int32_t>(1000.f / fps_limit) : 1));
         while (!(*stopper))
         {
             DelayMeasuredIn elapsed;
@@ -69,15 +69,17 @@ void ThreadedOpenGLContainer::startThread(int fps_limit)
 void ThreadedOpenGLContainer::renderStep()
 {
     const auto text_id = surf->render();
-    {
-        std::lock_guard<MutexT> grd(*renderLock);
-        surf->swapBuffer();
-    }
     if (!surf->uses_texture())
     {
         lastImage = (std::move(surf->getImage().convertToFormat(QImage::Format_RGBA8888)));
         emit readyRGBA8888(lastImage);
     }
     else
-        emit readyFrameOnId(text_id);
+    {
+        if (testandflip(paused, false))
+        {
+            surf->flip();
+            emit readyFrameOnId(text_id);
+        }
+    }
 }

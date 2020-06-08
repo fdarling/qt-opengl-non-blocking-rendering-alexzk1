@@ -29,8 +29,7 @@ public:
     void prepareContext();
     void releaseContext();
     GLuint render();
-    void swapBuffer(); //call from the same thread as render
-
+    void flip(); //must be called from the same thread as render
     QImage getImage() const;
     bool uses_texture() const;
 
