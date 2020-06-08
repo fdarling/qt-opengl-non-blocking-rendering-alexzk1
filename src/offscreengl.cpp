@@ -103,28 +103,35 @@ void OffscreenGL::fboRealloacted(const QSize &size)
     (void)size;
 }
 
-QOpenGLFramebufferObject *OffscreenGL::getFbo() const
-{
-    return fbo.get();
-}
-
 QPaintDevice *OffscreenGL::getPaintDevice() const
 {
     return m_paintDevice.get();
 }
 
-void OffscreenGL::render()
+GLuint OffscreenGL::render()
 {
     prepareContext();
-    if (fbo)
+    GLuint r = 0;
+
+    const std::shared_ptr<QOpenGLFramebufferObject> tmp[] = {fbo, fbo2};
+    const auto buf = (uses_texture()) ? tmp[buffer_index] : fbo;
+
+
+    if (buf)
     {
-        fbo->bind();
+        r = buf->texture();
+        BIND_PTR(buf);
         glCheckError();
         paintGL();
-        glCheckError();
-        fbo->release();
-        glCheckError();
     }
+    glCheckError();
+
+    return r;
+}
+
+void OffscreenGL::swapBuffer()
+{
+    buffer_index = 1 - buffer_index;
 }
 
 QImage OffscreenGL::getImage() const
@@ -144,42 +151,49 @@ void OffscreenGL::allocFbo()
 
     const auto sz = bufferSize.get();
 
-    //deletor lambda takes care of release, so no need special functions be called
-    //just make new pointer
-
-    fbo.reset(new QOpenGLFramebufferObject(sz, format), [](QOpenGLFramebufferObject * p)
+    //say NO to copy-paste - use lambdas!
+    const auto make_fbo = [&sz, &format]()
     {
-        if (p)
+        std::shared_ptr<QOpenGLFramebufferObject> fbo;
+        fbo.reset(new QOpenGLFramebufferObject(sz, format), [](QOpenGLFramebufferObject * p)
         {
-            if (p->isBound())
-                p->release();
+            //deletor lambda takes care of release, so no need special functions be called
+            //just make new pointer
+            if (p)
+            {
+                if (p->isBound())
+                    p->release();
 
-            delete p;
-        }
-    });
+                delete p;
+            }
+        });
+        if (!fbo->isValid())
+            throw std::runtime_error("OffscreenGL::allocFbo() - Failed to create background FBO!");
+        return fbo;
+    };
 
-    if (!fbo->isValid())
-        throw std::runtime_error("OffscreenGL::allocFbo() - Failed to create background FBO!");
+    fbo = make_fbo();
 
-    // clear framebuffer
-    if (m_functions_3_0)
-    {
-        fbo->bind();
-        m_functions_3_0->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        fbo->release();
-    }
+    if (uses_texture())
+        fbo2 = make_fbo();
+
 
     m_paintDevice.reset(new QOpenGLPaintDevice());
     m_paintDevice->setSize(sz);
 
-    fbo->bind();
-    fboRealloacted(sz);
-    fbo->release();
-
-    if (uses_texture())
+    // clear framebuffer
+    if (const auto f = getFuncs())
     {
-        static_assert(std::is_same<unsigned int, GLuint>::value, "Woops! Revise those signals / slots.");
-        emit hasTextureId(fbo->texture());
+        {
+            BIND_PTR(fbo);
+            f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            fboRealloacted(sz);
+        }
+        if (fbo2)
+        {
+            BIND_PTR(fbo2);
+            f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        }
     }
 }
 

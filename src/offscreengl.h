@@ -28,15 +28,17 @@ public:
     void setOwningThread(QThread *owner);
     void prepareContext();
     void releaseContext();
-    void render();
+    GLuint render();
+    void swapBuffer(); //call from the same thread as render
 
     QImage getImage() const;
     bool uses_texture() const;
 
+
+
 public slots:
     void resize(int w, int h);
 signals:
-    void hasTextureId(unsigned int tex_id);
 protected:
     virtual void paintGL() = 0;
     virtual void fboRealloacted(const QSize& size);
@@ -50,16 +52,17 @@ protected:
     QOffscreenSurface* surface{nullptr};
     QOpenGLContext* m_context{nullptr};
     LockedObject<QSize, std::recursive_mutex> bufferSize;
-    QOpenGLFramebufferObject* getFbo() const;
     QPaintDevice* getPaintDevice() const;
 private:
     QOpenGLFunctions_3_0* m_functions_3_0{nullptr};
     std::atomic<bool> isPrepared{false};
     std::atomic<bool> sizeChanged{false};
     std::shared_ptr<QOpenGLFramebufferObject> fbo{nullptr};
+    std::shared_ptr<QOpenGLFramebufferObject> fbo2{nullptr};
     std::shared_ptr<QOpenGLPaintDevice> m_paintDevice{nullptr};
     QPointer<QOpenGLContext> guiContext;
     void allocFbo();
 
     QImage grabNotMultiSample() const;
+    int buffer_index{0};
 };

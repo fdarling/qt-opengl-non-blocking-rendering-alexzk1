@@ -20,7 +20,7 @@ void GLGUIWidget::setTextureToUse(unsigned int id)
 {
     static_assert(std::is_same<unsigned int, GLuint>::value, "Woops! Revise those signals / slots.");
     tex_id = id;
-    std::cout << "Texture set to id: " << id << std::endl;
+    //std::cout << "Texture set to id: " << id << std::endl;
 }
 
 void GLGUIWidget::initializeGL()
@@ -54,7 +54,9 @@ void GLGUIWidget::paintGL()
     if (!tid)
         return;
     LockT l = lock;
-    if (!l || l->try_lock())
+    if (l)
+        l->lock();
+    //if (!l || l->try_lock())
     {
         exec_onexit ex([l]()
         {

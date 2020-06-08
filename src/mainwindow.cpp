@@ -92,9 +92,9 @@ void MainWindow::delayedInit()
 
     //FIXME: uncomment to use mutex render/gui thread
     //oglWidget->setThreadLock(gl->thread->getRenderLock());
-    connect(gl->surface, &ExamplePaintSurface::hasTextureId, oglWidget, &GLGUIWidget::setTextureToUse);
-    connect(gl->thread, &ThreadedOpenGLContainer::readyFrame, this, [this]()
+    connect(gl->thread, &ThreadedOpenGLContainer::readyFrameOnId, this, [this](unsigned int t)
     {
+        oglWidget->setTextureToUse(t);
         oglWidget->update();
     }, Qt::QueuedConnection);
 #endif

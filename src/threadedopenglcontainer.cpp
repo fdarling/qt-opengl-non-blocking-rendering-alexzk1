@@ -52,7 +52,6 @@ void ThreadedOpenGLContainer::startThread(int fps_limit)
             {
                 DelayBlockMs<DelayMeasuredIn> delay(DELAY, &elapsed);//defines FPS, however it is MS delay ...
                 (void)delay;
-                std::lock_guard<MutexT> grd(*renderLock);
                 renderStep();
             }
             emit singleRunFps(std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count());
@@ -69,11 +68,16 @@ void ThreadedOpenGLContainer::startThread(int fps_limit)
 
 void ThreadedOpenGLContainer::renderStep()
 {
-    surf->render();
+    const auto text_id = surf->render();
+    {
+        std::lock_guard<MutexT> grd(*renderLock);
+        surf->swapBuffer();
+    }
     if (!surf->uses_texture())
     {
         lastImage = (std::move(surf->getImage().convertToFormat(QImage::Format_RGBA8888)));
         emit readyRGBA8888(lastImage);
     }
-    emit readyFrame();
+    else
+        emit readyFrameOnId(text_id);
 }
