@@ -94,7 +94,6 @@ void MainWindow::delayedInit()
     connect(gl->thread, &ThreadedOpenGLContainer::readyFrameOnId, this, [this](unsigned int t)
     {
         oglWidget->setTextureToUse(t);
-        oglWidget->update();
     }, Qt::QueuedConnection);
 #endif
     gl->surface->resize(width(), height());

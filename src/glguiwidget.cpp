@@ -15,9 +15,9 @@ GLGUIWidget::GLGUIWidget(QWidget *parent) :
 void GLGUIWidget::setTextureToUse(unsigned int id)
 {
     static_assert(std::is_same<unsigned int, GLuint>::value, "Woops! Revise those signals / slots.");
-    tex_id = id;
-    emit_once = true;
-    std::cout << "ID: " << id << std::endl;
+    testandflip(emit_once, false) && tex_id.exchange(id);
+
+    //std::cout << "ID: " << id << std::endl;
 }
 
 void GLGUIWidget::initializeGL()
