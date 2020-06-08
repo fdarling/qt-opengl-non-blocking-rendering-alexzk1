@@ -151,6 +151,7 @@ bool OffscreenGL::uses_texture() const
 
 void OffscreenGL::allocFbo()
 {
+    buffer_index = 0;
     QOpenGLFramebufferObjectFormat format;
     format.setSamples(0);
 
@@ -189,16 +190,9 @@ void OffscreenGL::allocFbo()
     // clear framebuffer
     if (const auto f = getFuncs())
     {
-        {
-            BIND_PTR(fbo);
-            f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-            fboRealloacted(sz);
-        }
-        if (fbo2)
-        {
-            BIND_PTR(fbo2);
-            f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        }
+        BIND_PTR(fbo);
+        f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        fboRealloacted(sz);
     }
 }
 

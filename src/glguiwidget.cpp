@@ -28,11 +28,21 @@ void GLGUIWidget::initializeGL()
 
 void GLGUIWidget::resizeGL(int w, int h)
 {
-    glViewport(0, 0, w, h);
-    glDisable(GL_DEPTH_TEST);
-
     m_w = w;
     m_h = h;
+
+    glViewport(0, 0, w, h);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0.0, w, 0.0, h, -1.0, 1.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glDisable(GL_LIGHTING);
+
+    glCheckError();
 }
 
 void GLGUIWidget::paintGL()
@@ -48,30 +58,12 @@ void GLGUIWidget::paintGL()
     });
 
     const bool can_emit = testandflip(emit_once, true);
-    if (can_emit)
-        tid = tex_id;
+    GLuint tid = tex_id;
 
     if (!tid)
         return;
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glCheckError();
-
-    glMatrixMode(GL_PROJECTION);
-    glCheckError();
-    glPushMatrix();
-    glCheckError();
-    glLoadIdentity();
-    glCheckError();
-    glOrtho(0.0, m_w, 0.0, m_h, -1.0, 1.0);
-    glCheckError();
-    glMatrixMode(GL_MODELVIEW);
-    glCheckError();
-    glPushMatrix();
-    glCheckError();
-    glLoadIdentity();
-    glCheckError();
-    glDisable(GL_LIGHTING);
 
     glEnable(GL_TEXTURE_2D);
     glCheckError();
@@ -96,13 +88,6 @@ void GLGUIWidget::paintGL()
 
     glDisable(GL_TEXTURE_2D);
     glCheckError();
-
-    glPopMatrix();
-
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-
-    glMatrixMode(GL_MODELVIEW);
 
     glFlush();
     glCheckError();
