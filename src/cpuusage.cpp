@@ -124,6 +124,7 @@ double CpuUsage::getCpuUsage()
     auto old  = cputime;
     auto oldt = lastCheck;
 
+    lastCheck = Clock::now();
     updateStatFromFs();
 
     const auto dt = std::max(1l, std::abs(duration_cast<milliseconds>(lastCheck - oldt).count()));
@@ -158,7 +159,6 @@ int CpuUsage::updateStatFromFs()
         auto tokens = split(fulls, ' ');
         if (tokens.size() < 14)
             return -1;
-        lastCheck = Clock::now();
         cputime = std::atoi(tokens.at(13).c_str()) * 1000 / HZ;
         cputime += std::atoi(tokens.at(14).c_str()) * 1000 / HZ;
 

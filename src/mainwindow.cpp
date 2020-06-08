@@ -80,7 +80,7 @@ void MainWindow::delayedInit()
         lastFps = lastFps * alpha + fps_now * (1.f - alpha);
         if (statusLabel)
         {
-            int64_t u = usage.getCpuUsage() * 100.f;
+            const int64_t u = usage.getCpuUsage() * 100.f;
             statusLabel->setText(QStringLiteral("FPS: %1; CPU: %2%").arg(lastFps).arg(u));
         }
 
