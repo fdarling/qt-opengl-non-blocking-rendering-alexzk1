@@ -14,8 +14,9 @@ public:
 public slots:
     void launch(int fps_limit = 0);
 signals:
-    void readyRGBA8888(const QImage& img); //launched from thread
+    void readyRGBA8888(const QImage& img); //launched from thread, maybe skip if offscreen renders to texture
     void singleRunFps(int64_t elapsed); //launched from thread
+    void readyFrame(); // always emmitted
 protected:
     LambdaThreadPtr thread{nullptr};
 

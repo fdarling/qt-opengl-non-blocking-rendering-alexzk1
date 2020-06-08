@@ -6,6 +6,7 @@
 #include <sstream>
 #include <fstream>
 #include <chrono>
+#include "strfmt.h"
 
 #ifdef Q_OS_LINUX
     #include <sys/vfs.h>
@@ -30,29 +31,6 @@
         #endif
     #endif
 #endif
-
-template< typename... Args >
-std::string string_sprintf( const char* format, Args... args )
-{
-    int length = std::snprintf( nullptr, 0, format, args... );
-    auto* buf = new char[length + 1];
-    std::snprintf( buf, length + 1, format, args... );
-    std::string str( buf );
-    delete[] buf;
-    return str;
-}
-
-inline std::vector<std::string> split(std::string str, char delimiter)
-{
-    std::vector<std::string> internal;
-    std::stringstream ss(str); // Turn the string into a stream.
-    std::string tok;
-
-    while (getline(ss, tok, delimiter))
-        internal.push_back(tok);
-
-    return internal;
-}
 
 //from this article: http://cpp.indi.frih.net/blog/2014/09/how-to-read-an-entire-file-into-memory-in-cpp/
 template <typename CharT = char,
@@ -145,7 +123,7 @@ double CpuUsage::getCpuUsage()
 int CpuUsage::updateStatFromFs()
 {
 #ifdef Q_OS_LINUX
-    std::fstream io(string_sprintf("/proc/%d/stat", getpid()), std::ios_base::in );
+    std::fstream io(stringfmt("/proc/%d/stat", getpid()), std::ios_base::in );
     std::string fulls;
     try
     {

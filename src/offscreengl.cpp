@@ -1,9 +1,12 @@
 #include "offscreengl.h"
 #include <QApplication>
 #include <QThread>
+#include "logger.h"
+#include "bind_release_wrap.h"
 
-OffscreenGL::OffscreenGL(QScreen *targetScreen, const QSize &size, QObject *parent) :
-    QObject(parent)
+OffscreenGL::OffscreenGL(bool use_texture, QScreen *targetScreen, const QSize &size, QObject *parent) :
+    QObject(parent),
+    uses_texture(use_texture)
 {
     if (QThread::currentThread() != QApplication::instance()->thread())
         throw std::runtime_error("Offscreen must be constructed from GUI thread!");
@@ -81,6 +84,7 @@ void OffscreenGL::releaseContext()
 {
     m_functions_3_0 = nullptr;
     fbo.reset();
+    m_texture.reset();
     m_paintDevice.reset();
     m_context->doneCurrent();
     isPrepared = false;
@@ -113,8 +117,21 @@ void OffscreenGL::render()
     if (fbo)
     {
         fbo->bind();
+        glCheckError();
         paintGL();
+        glCheckError();
+        if (uses_texture && m_texture)
+        {
+            bind_release_ptr_wrap<decltype(m_texture)> wrap(m_texture);
+            std::lock_guard<decltype(wrap)> grd(wrap);
+            glCheckError(); //checks bind
+
+            getFuncs()->glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, fbo->width(), fbo->height(), 0);
+            glCheckError();
+        }
+        glCheckError(); //checks release
         fbo->release();
+        glCheckError();
     }
 }
 
@@ -137,7 +154,9 @@ void OffscreenGL::allocFbo()
     {
         if (p)
         {
-            p->release();
+            if (p->isBound())
+                p->release();
+
             delete p;
         }
     });
@@ -145,6 +164,24 @@ void OffscreenGL::allocFbo()
     if (!fbo->isValid())
         throw std::runtime_error("OffscreenGL::allocFbo() - Failed to create background FBO!");
 
+    if (uses_texture)
+    {
+        m_texture.reset(new QOpenGLTexture(QOpenGLTexture::Target2D), [](QOpenGLTexture * p)
+        {
+            if (p)
+            {
+                if (p->isBound())
+                    p->release();
+
+                if (p->isCreated())
+                    p->destroy();
+
+                delete p;
+            }
+        });
+        m_texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt32_RGBA8);
+        m_texture->create();
+    }
     // clear framebuffer
     if (m_functions_3_0)
     {

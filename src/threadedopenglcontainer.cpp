@@ -62,6 +62,10 @@ void ThreadedOpenGLContainer::startThread(int fps_limit)
 void ThreadedOpenGLContainer::renderStep()
 {
     surf->render();
-    lastImage = (std::move(surf->getImage().convertToFormat(QImage::Format_RGBA8888)));
-    emit readyRGBA8888(lastImage);
+    if (!surf->uses_texture)
+    {
+        lastImage = (std::move(surf->getImage().convertToFormat(QImage::Format_RGBA8888)));
+        emit readyRGBA8888(lastImage);
+    }
+    emit readyFrame();
 }

@@ -1,7 +1,7 @@
 #include "example_surface.h"
 
 ExamplePaintSurface::ExamplePaintSurface(QScreen *targetScreen, const QSize &size):
-    OffscreenGL(targetScreen, size)
+    OffscreenGL(false, targetScreen, size)
 {
     timer.start();
 }
@@ -18,53 +18,54 @@ void ExamplePaintSurface::setLag(bool on)
 
 void ExamplePaintSurface::paintGL()
 {
-    if (m_functions_3_0)
+    const auto funcptr = getFuncs();
+    if (funcptr)
     {
-        const float rotqube = fmodf(static_cast<float>(timer.elapsed())/100.0f, 360.0f);
+        const float rotqube = fmodf(static_cast<float>(timer.elapsed()) / 100.0f, 360.0f);
         // Clear Screen And Depth Buffer
-        m_functions_3_0->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        funcptr->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // Reset The Current Modelview Matrix
-        m_functions_3_0->glLoadIdentity();
+        funcptr->glLoadIdentity();
 
         //NEW//////////////////NEW//////////////////NEW//////////////////NEW/////////////
         const float factor = scale / 50.f;
-        m_functions_3_0->glTranslatef(0.0f, 0.0f, -7.0f);   // Translate Into The Screen 7.0 Units
-        m_functions_3_0->glScalef(factor, factor, factor);
+        funcptr->glTranslatef(0.0f, 0.0f, -7.0f);   // Translate Into The Screen 7.0 Units
+        funcptr->glScalef(factor, factor, factor);
 
-        m_functions_3_0->glRotatef(rotqube, 0.0f, 1.0f, 0.0f); // Rotate The cube around the Y axis
-        m_functions_3_0->glRotatef(rotqube, 1.0f, 1.0f, 1.0f);
-        m_functions_3_0->glBegin(GL_QUADS);     // Draw The Cube Using quads
-        m_functions_3_0->glColor3f(0.0f, 1.0f, 0.0f); // Color Blue
-        m_functions_3_0->glVertex3f( 1.0f, 1.0f, -1.0f);  // Top Right Of The Quad (Top)
-        m_functions_3_0->glVertex3f(-1.0f, 1.0f, -1.0f);  // Top Left Of The Quad (Top)
-        m_functions_3_0->glVertex3f(-1.0f, 1.0f, 1.0f);   // Bottom Left Of The Quad (Top)
-        m_functions_3_0->glVertex3f( 1.0f, 1.0f, 1.0f);   // Bottom Right Of The Quad (Top)
-        m_functions_3_0->glColor3f(1.0f, 0.5f, 0.0f); // Color Orange
-        m_functions_3_0->glVertex3f( 1.0f, -1.0f, 1.0f);  // Top Right Of The Quad (Bottom)
-        m_functions_3_0->glVertex3f(-1.0f, -1.0f, 1.0f);  // Top Left Of The Quad (Bottom)
-        m_functions_3_0->glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Bottom)
-        m_functions_3_0->glVertex3f( 1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Bottom)
-        m_functions_3_0->glColor3f(1.0f, 0.0f, 0.0f); // Color Red
-        m_functions_3_0->glVertex3f( 1.0f, 1.0f, 1.0f);   // Top Right Of The Quad (Front)
-        m_functions_3_0->glVertex3f(-1.0f, 1.0f, 1.0f);   // Top Left Of The Quad (Front)
-        m_functions_3_0->glVertex3f(-1.0f, -1.0f, 1.0f);  // Bottom Left Of The Quad (Front)
-        m_functions_3_0->glVertex3f( 1.0f, -1.0f, 1.0f);  // Bottom Right Of The Quad (Front)
-        m_functions_3_0->glColor3f(1.0f, 1.0f, 0.0f); // Color Yellow
-        m_functions_3_0->glVertex3f( 1.0f, -1.0f, -1.0f); // Top Right Of The Quad (Back)
-        m_functions_3_0->glVertex3f(-1.0f, -1.0f, -1.0f); // Top Left Of The Quad (Back)
-        m_functions_3_0->glVertex3f(-1.0f, 1.0f, -1.0f);  // Bottom Left Of The Quad (Back)
-        m_functions_3_0->glVertex3f( 1.0f, 1.0f, -1.0f);  // Bottom Right Of The Quad (Back)
-        m_functions_3_0->glColor3f(0.0f, 0.0f, 1.0f); // Color Blue
-        m_functions_3_0->glVertex3f(-1.0f, 1.0f, 1.0f);   // Top Right Of The Quad (Left)
-        m_functions_3_0->glVertex3f(-1.0f, 1.0f, -1.0f);  // Top Left Of The Quad (Left)
-        m_functions_3_0->glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Left)
-        m_functions_3_0->glVertex3f(-1.0f, -1.0f, 1.0f);  // Bottom Right Of The Quad (Left)
-        m_functions_3_0->glColor3f(1.0f, 0.0f, 1.0f); // Color Violet
-        m_functions_3_0->glVertex3f( 1.0f, 1.0f, -1.0f);  // Top Right Of The Quad (Right)
-        m_functions_3_0->glVertex3f( 1.0f, 1.0f, 1.0f);   // Top Left Of The Quad (Right)
-        m_functions_3_0->glVertex3f( 1.0f, -1.0f, 1.0f);  // Bottom Left Of The Quad (Right)
-        m_functions_3_0->glVertex3f( 1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Right)
-        m_functions_3_0->glEnd();           // End Drawing The Cube
+        funcptr->glRotatef(rotqube, 0.0f, 1.0f, 0.0f); // Rotate The cube around the Y axis
+        funcptr->glRotatef(rotqube, 1.0f, 1.0f, 1.0f);
+        funcptr->glBegin(GL_QUADS);     // Draw The Cube Using quads
+        funcptr->glColor3f(0.0f, 1.0f, 0.0f); // Color Blue
+        funcptr->glVertex3f( 1.0f, 1.0f, -1.0f);  // Top Right Of The Quad (Top)
+        funcptr->glVertex3f(-1.0f, 1.0f, -1.0f);  // Top Left Of The Quad (Top)
+        funcptr->glVertex3f(-1.0f, 1.0f, 1.0f);   // Bottom Left Of The Quad (Top)
+        funcptr->glVertex3f( 1.0f, 1.0f, 1.0f);   // Bottom Right Of The Quad (Top)
+        funcptr->glColor3f(1.0f, 0.5f, 0.0f); // Color Orange
+        funcptr->glVertex3f( 1.0f, -1.0f, 1.0f);  // Top Right Of The Quad (Bottom)
+        funcptr->glVertex3f(-1.0f, -1.0f, 1.0f);  // Top Left Of The Quad (Bottom)
+        funcptr->glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Bottom)
+        funcptr->glVertex3f( 1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Bottom)
+        funcptr->glColor3f(1.0f, 0.0f, 0.0f); // Color Red
+        funcptr->glVertex3f( 1.0f, 1.0f, 1.0f);   // Top Right Of The Quad (Front)
+        funcptr->glVertex3f(-1.0f, 1.0f, 1.0f);   // Top Left Of The Quad (Front)
+        funcptr->glVertex3f(-1.0f, -1.0f, 1.0f);  // Bottom Left Of The Quad (Front)
+        funcptr->glVertex3f( 1.0f, -1.0f, 1.0f);  // Bottom Right Of The Quad (Front)
+        funcptr->glColor3f(1.0f, 1.0f, 0.0f); // Color Yellow
+        funcptr->glVertex3f( 1.0f, -1.0f, -1.0f); // Top Right Of The Quad (Back)
+        funcptr->glVertex3f(-1.0f, -1.0f, -1.0f); // Top Left Of The Quad (Back)
+        funcptr->glVertex3f(-1.0f, 1.0f, -1.0f);  // Bottom Left Of The Quad (Back)
+        funcptr->glVertex3f( 1.0f, 1.0f, -1.0f);  // Bottom Right Of The Quad (Back)
+        funcptr->glColor3f(0.0f, 0.0f, 1.0f); // Color Blue
+        funcptr->glVertex3f(-1.0f, 1.0f, 1.0f);   // Top Right Of The Quad (Left)
+        funcptr->glVertex3f(-1.0f, 1.0f, -1.0f);  // Top Left Of The Quad (Left)
+        funcptr->glVertex3f(-1.0f, -1.0f, -1.0f); // Bottom Left Of The Quad (Left)
+        funcptr->glVertex3f(-1.0f, -1.0f, 1.0f);  // Bottom Right Of The Quad (Left)
+        funcptr->glColor3f(1.0f, 0.0f, 1.0f); // Color Violet
+        funcptr->glVertex3f( 1.0f, 1.0f, -1.0f);  // Top Right Of The Quad (Right)
+        funcptr->glVertex3f( 1.0f, 1.0f, 1.0f);   // Top Left Of The Quad (Right)
+        funcptr->glVertex3f( 1.0f, -1.0f, 1.0f);  // Bottom Left Of The Quad (Right)
+        funcptr->glVertex3f( 1.0f, -1.0f, -1.0f); // Bottom Right Of The Quad (Right)
+        funcptr->glEnd();           // End Drawing The Cube
     }
 
     if (lag)
@@ -74,22 +75,23 @@ void ExamplePaintSurface::paintGL()
 void ExamplePaintSurface::fboRealloacted(const QSize &sz)
 {
     imageSize = sz;
-    if (m_functions_3_0)
+    const auto funcptr = getFuncs();
+    if (funcptr)
     {
-        m_functions_3_0->glViewport(0, 0, sz.width(), sz.height());                    // Reset The Current Viewport
-        m_functions_3_0->glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        m_functions_3_0->glEnable(GL_CULL_FACE);
-        m_functions_3_0->glEnable(GL_DEPTH_TEST);
-        m_functions_3_0->glDepthMask(GL_TRUE);
+        funcptr->glViewport(0, 0, sz.width(), sz.height());                    // Reset The Current Viewport
+        funcptr->glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        funcptr->glEnable(GL_CULL_FACE);
+        funcptr->glEnable(GL_DEPTH_TEST);
+        funcptr->glDepthMask(GL_TRUE);
 
-        m_functions_3_0->glMatrixMode(GL_PROJECTION);                        // Select The Projection Matrix
-        m_functions_3_0->glLoadIdentity();                                   // Reset The Projection Matrix
+        funcptr->glMatrixMode(GL_PROJECTION);                        // Select The Projection Matrix
+        funcptr->glLoadIdentity();                                   // Reset The Projection Matrix
 
         // Calculate The Aspect Ratio Of The Window
         gldPerspective(45.0f, (GLfloat)sz.width() / (GLfloat)sz.height(), 0.1f, 100.0f);
 
-        m_functions_3_0->glMatrixMode(GL_MODELVIEW);                         // Select The Modelview Matrix
-        m_functions_3_0->glLoadIdentity();                                   // Reset The Modelview Matrix
+        funcptr->glMatrixMode(GL_MODELVIEW);                         // Select The Modelview Matrix
+        funcptr->glLoadIdentity();                                   // Reset The Modelview Matrix
     }
 }
 
@@ -125,5 +127,5 @@ void ExamplePaintSurface::gldPerspective(GLdouble fovx, GLdouble aspect, GLdoubl
     *M(2, 3) = -(2.0 * zFar * zNear) / (zFar - zNear);
 
     // Add to current matrix
-    m_functions_3_0->glMultMatrixd(m);
+    getFuncs()->glMultMatrixd(m);
 }
