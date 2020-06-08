@@ -46,8 +46,12 @@ MainWindow::MainWindow(QWidget *parent):
     }
     setCentralWidget(dummy);
     resize(640, 480);
+#ifndef USE_QIMAGE
     oglWidget->update(); //need initial update wich will create gui context so it will be shared to thread
     QTimer::singleShot(100, this, &MainWindow::delayedInit);
+#else
+    delayedInit();
+#endif
 }
 
 MainWindow::~MainWindow()
