@@ -33,6 +33,7 @@ HEADERS += \
     src/cm_ctors.h \
     src/cpuusage.h \
     src/example_surface.h \
+    src/exec_exit.h \
     src/glguiwidget.h \
     src/guard_on.h \
     src/lambda_thread.h \

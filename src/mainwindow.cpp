@@ -87,6 +87,9 @@ void MainWindow::delayedInit()
     }, Qt::QueuedConnection); //it is important to have Qt::QueuedConnection here
 #else
     gl.reset(new GLManager<ExamplePaintSurface>(oglWidget->context()));
+
+    //FIXME: uncomment to use mutex render/gui thread
+    //oglWidget->setThreadLock(gl->thread->getRenderLock());
     connect(gl->surface, &ExamplePaintSurface::hasTextureId, oglWidget, &GLGUIWidget::setTextureToUse);
     connect(gl->thread, &ThreadedOpenGLContainer::readyFrame, this, [this]()
     {
@@ -109,7 +112,11 @@ void MainWindow::delayedInit()
         if (statusLabel)
         {
             const int64_t u = usage.getCpuUsage() * 100.f;
+#ifdef USE_QIMAGE
             statusLabel->setText(QStringLiteral("FPS (thread): %1; CPU: %2%").arg(lastFps).arg(u));
+#else
+            statusLabel->setText(QStringLiteral("FPS (thread): %1; CPU: %2%; GUI-Frame (ms): %3").arg(lastFps).arg(u).arg(oglWidget->lastFramePaint));
+#endif
         }
 
     }, Qt::QueuedConnection);

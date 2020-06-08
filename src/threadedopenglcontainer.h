@@ -10,8 +10,15 @@ class ThreadedOpenGLContainer : public QObject
 {
     Q_OBJECT
 public:
+
+    using MutexT = std::mutex;
+    using MutexTPtr = std::shared_ptr<MutexT>;
+
     explicit ThreadedOpenGLContainer(OffscreenGL* surf, QObject* parent = nullptr);
     ~ThreadedOpenGLContainer() override;
+
+    MutexTPtr getRenderLock() const;
+
 public slots:
     void launch(int fps_limit = 0);
 signals:
@@ -23,6 +30,9 @@ protected:
 
     void ensureThreadEnded();
 private:
+
+    const MutexTPtr renderLock{new MutexT};
+
     OffscreenGL* surf{nullptr};
     QImage lastImage;
 

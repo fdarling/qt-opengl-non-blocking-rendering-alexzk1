@@ -3,6 +3,7 @@
 #include <QPainter>
 #include <QOpenGLTexture>
 #include "block_delay.h"
+#include "guard_on.h"
 
 static_assert(true, "This is C++ version test. Will fail if below C++11. We need C++11 at least.");
 
@@ -19,6 +20,11 @@ ThreadedOpenGLContainer::ThreadedOpenGLContainer(OffscreenGL *surf, QObject *par
 ThreadedOpenGLContainer::~ThreadedOpenGLContainer()
 {
     ensureThreadEnded();
+}
+
+ThreadedOpenGLContainer::MutexTPtr ThreadedOpenGLContainer::getRenderLock() const
+{
+    return renderLock;
 }
 
 void ThreadedOpenGLContainer::launch(int fps_limit)
@@ -46,6 +52,7 @@ void ThreadedOpenGLContainer::startThread(int fps_limit)
             {
                 DelayBlockMs<DelayMeasuredIn> delay(DELAY, &elapsed);//defines FPS, however it is MS delay ...
                 (void)delay;
+                std::lock_guard<MutexT> grd(*renderLock);
                 renderStep();
             }
             emit singleRunFps(std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count());
