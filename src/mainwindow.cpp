@@ -46,7 +46,8 @@ MainWindow::MainWindow(QWidget *parent):
     }
     setCentralWidget(dummy);
     resize(640, 480);
-    delayedInit();
+    oglWidget->update(); //need initial update wich will create gui context so it will be shared to thread
+    QTimer::singleShot(100, this, &MainWindow::delayedInit);
 }
 
 MainWindow::~MainWindow()
@@ -104,7 +105,7 @@ void MainWindow::delayedInit()
         if (statusLabel)
         {
             const int64_t u = usage.getCpuUsage() * 100.f;
-            statusLabel->setText(QStringLiteral("FPS: %1; CPU: %2%").arg(lastFps).arg(u));
+            statusLabel->setText(QStringLiteral("FPS (thread): %1; CPU: %2%").arg(lastFps).arg(u));
         }
 
     }, Qt::QueuedConnection);

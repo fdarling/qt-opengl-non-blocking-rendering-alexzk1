@@ -87,7 +87,6 @@ void OffscreenGL::releaseContext()
 {
     m_functions_3_0 = nullptr;
     fbo.reset();
-    m_texture.reset();
     m_paintDevice.reset();
     m_context->doneCurrent();
     isPrepared = false;
@@ -123,15 +122,6 @@ void OffscreenGL::render()
         glCheckError();
         paintGL();
         glCheckError();
-        if (uses_texture() && m_texture)
-        {
-            BIND_PTR(m_texture);
-            glCheckError(); //checks bind
-
-            getFuncs()->glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, fbo->width(), fbo->height(), 0);
-            glCheckError();
-        }
-        glCheckError(); //checks release
         fbo->release();
         glCheckError();
     }
@@ -171,26 +161,6 @@ void OffscreenGL::allocFbo()
     if (!fbo->isValid())
         throw std::runtime_error("OffscreenGL::allocFbo() - Failed to create background FBO!");
 
-    if (uses_texture())
-    {
-        m_texture.reset(new QOpenGLTexture(QOpenGLTexture::Target2D), [](QOpenGLTexture * p)
-        {
-            if (p)
-            {
-                if (p->isBound())
-                    p->release();
-
-                if (p->isCreated())
-                    p->destroy();
-
-                delete p;
-            }
-        });
-        m_texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt32_RGBA8);
-        m_texture->create();
-        static_assert(std::is_same<unsigned int, GLuint>::value, "Woops! Revise those signals / slots.");
-        emit hasTextureId(m_texture->textureId());
-    }
     // clear framebuffer
     if (m_functions_3_0)
     {
@@ -205,6 +175,12 @@ void OffscreenGL::allocFbo()
     fbo->bind();
     fboRealloacted(sz);
     fbo->release();
+
+    if (uses_texture())
+    {
+        static_assert(std::is_same<unsigned int, GLuint>::value, "Woops! Revise those signals / slots.");
+        emit hasTextureId(fbo->texture());
+    }
 }
 
 QImage OffscreenGL::grabNotMultiSample() const

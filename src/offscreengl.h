@@ -58,7 +58,6 @@ private:
     std::atomic<bool> sizeChanged{false};
     std::shared_ptr<QOpenGLFramebufferObject> fbo{nullptr};
     std::shared_ptr<QOpenGLPaintDevice> m_paintDevice{nullptr};
-    std::shared_ptr<QOpenGLTexture> m_texture{nullptr};
     QPointer<QOpenGLContext> guiContext;
     void allocFbo();
 
