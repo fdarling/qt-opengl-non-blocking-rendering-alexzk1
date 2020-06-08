@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    src/cpuusage.cpp \
     src/example_surface.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
@@ -25,6 +26,7 @@ SOURCES += \
 
 HEADERS += \
     src/cm_ctors.h \
+    src/cpuusage.h \
     src/example_surface.h \
     src/lambda_thread.h \
     src/locked_object.h \

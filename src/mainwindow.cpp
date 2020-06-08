@@ -5,6 +5,7 @@
 #include <QSlider>
 #include <QPushButton>
 #include <QCheckBox>
+#include "cpuusage.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), imageWidget(new ImageWidget)
@@ -70,13 +71,18 @@ void MainWindow::delayedInit()
     lastFps = 0.f;
     connect(gl->thread, &ThreadedOpenGLContainer::singleRunFps, this, [this](int64_t ms_per_render)
     {
+        static CpuUsage usage;
+
         constexpr static float alpha = 0.5f;
         const float fps_now = 1000.f / ms_per_render;
 
         //low-pass filter
-        lastFps = lastFps * alpha + fps_now * (1 - alpha);
+        lastFps = lastFps * alpha + fps_now * (1.f - alpha);
         if (statusLabel)
-            statusLabel->setText(QStringLiteral("FPS: %1").arg(lastFps));
+        {
+            int64_t u = usage.getCpuUsage() * 100.f;
+            statusLabel->setText(QStringLiteral("FPS: %1; CPU: %2%").arg(lastFps).arg(u));
+        }
 
     }, Qt::QueuedConnection);
     gl->thread->launch(60);
