@@ -15,7 +15,7 @@ GLGUIWidget::GLGUIWidget(QWidget *parent) :
 void GLGUIWidget::setTextureToUse(unsigned int id)
 {
     static_assert(std::is_same<unsigned int, GLuint>::value, "Woops! Revise those signals / slots.");
-    testandflip(emit_once, false) && tex_id.exchange(id);
+    emit_once = tex_id.exchange(id) != id;
 
     //std::cout << "ID: " << id << std::endl;
 }
@@ -47,7 +47,10 @@ void GLGUIWidget::paintGL()
         lastFramePaint = lastFramePaint * alpha + elapsed.count() * (1.f - alpha);
     });
 
-    GLuint tid = tex_id;
+    const bool can_emit = testandflip(emit_once, true);
+    if (can_emit)
+        tid = tex_id;
+
     if (!tid)
         return;
 
@@ -104,7 +107,6 @@ void GLGUIWidget::paintGL()
     glFlush();
     glCheckError();
 
-
-    if (testandflip(emit_once, true))
+    if (can_emit)
         emit renderGlDone();
 }

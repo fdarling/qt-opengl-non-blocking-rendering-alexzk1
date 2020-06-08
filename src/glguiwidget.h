@@ -26,4 +26,5 @@ private:
     std::atomic<GLuint> tex_id{0};
     int m_w{0};
     int m_h{0};
+    GLuint tid{0};
 };

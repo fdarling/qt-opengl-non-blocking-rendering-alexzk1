@@ -1,4 +1,5 @@
 #include "example_surface.h"
+#include <iostream>
 
 ExamplePaintSurface::ExamplePaintSurface(QOpenGLContext *guiContext, QScreen *targetScreen, const QSize &size):
     OffscreenGL(guiContext, targetScreen, size)

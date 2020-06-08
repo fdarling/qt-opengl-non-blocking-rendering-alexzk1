@@ -127,6 +127,7 @@ GLuint OffscreenGL::render()
         BIND_PTR(buf);
         glCheckError();
         paintGL();
+        glFlush();
     }
     glCheckError();
 
@@ -208,28 +209,28 @@ QImage OffscreenGL::grabNotMultiSample() const
     //however that original code is real spagetti there
 
     QImage image;
-
-    if (fbo && m_functions_3_0)
+    const auto f = getFuncs();
+    if (fbo && f)
     {
-        m_functions_3_0->glFlush();
-        m_functions_3_0->glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo->handle());
-        if (m_functions_3_0)
-            m_functions_3_0->glReadBuffer(GL_COLOR_ATTACHMENT0);
+        f->glFlush();
+        f->glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo->handle());
+
+        f->glReadBuffer(GL_COLOR_ATTACHMENT0);
         GLenum internalFormat = fbo->format().internalTextureFormat();
         const bool hasAlpha = internalFormat == GL_RGBA || internalFormat == GL_BGRA || internalFormat == GL_RGBA8;
         if (internalFormat == GL_BGRA)
         {
             image = QImage(fbo->size(), hasAlpha ? QImage::Format_ARGB32 : QImage::Format_RGB32);
-            m_functions_3_0->glReadPixels(0, 0, fbo->size().width(),
-                                          fbo->size().height(), GL_BGRA, GL_UNSIGNED_BYTE, image.bits());
+            f->glReadPixels(0, 0, fbo->size().width(),
+                            fbo->size().height(), GL_BGRA, GL_UNSIGNED_BYTE, image.bits());
         }
         else
         {
             if ((internalFormat == GL_RGBA) || (internalFormat == GL_RGBA8))
             {
                 image = QImage(fbo->size(), hasAlpha ? QImage::Format_RGBA8888 : QImage::Format_RGBX8888);
-                m_functions_3_0->glReadPixels(0, 0, fbo->size().width(),
-                                              fbo->size().height(), GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
+                f->glReadPixels(0, 0, fbo->size().width(),
+                                fbo->size().height(), GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
             }
             else
             {
@@ -237,7 +238,7 @@ QImage OffscreenGL::grabNotMultiSample() const
                          << internalFormat << "!";
             }
         }
-        m_functions_3_0->glBindFramebuffer(GL_FRAMEBUFFER, fbo->handle());
+        f->glBindFramebuffer(GL_FRAMEBUFFER, fbo->handle());
     }
 
     return image.mirrored();
