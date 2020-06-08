@@ -24,3 +24,5 @@ public:
         ptr->release();
     }
 };
+
+#define BIND_PTR(PTR) bind_release_ptr_wrap<decltype(PTR)> wrap_##PTR(PTR); std::lock_guard<decltype(wrap_##PTR)> grd(wrap_##PTR)

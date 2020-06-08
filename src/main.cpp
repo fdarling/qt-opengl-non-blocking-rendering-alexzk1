@@ -11,7 +11,11 @@ int main(int argc, char *argv[])
      * to different top-level windows.
      * This attribute must be set before QGuiApplication is constructed. This value was added in Qt 5.4.
     */
-    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+
+    //UPDATE: this DOES NOT WORK
+    //https://forum.qt.io/topic/49164/explicit-context-sharing-with-qopenglwidget/8
+
+    //QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
     QApplication a(argc, argv);
     MainWindow w;
     w.show();

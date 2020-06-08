@@ -15,9 +15,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+#uncomment to use initial qimage dump
+#DEFINES += USE_QIMAGE
+
 SOURCES += \
     src/cpuusage.cpp \
     src/example_surface.cpp \
+    src/glguiwidget.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
     src/imagewidget.cpp \
@@ -25,14 +29,19 @@ SOURCES += \
     src/threadedopenglcontainer.cpp
 
 HEADERS += \
+    src/bind_release_wrap.h \
     src/cm_ctors.h \
     src/cpuusage.h \
     src/example_surface.h \
+    src/glguiwidget.h \
+    src/guard_on.h \
     src/lambda_thread.h \
     src/locked_object.h \
+    src/logger.h \
     src/mainwindow.h \
     src/imagewidget.h \
     src/offscreengl.h \
+    src/strfmt.h \
     src/threadedopenglcontainer.h
 
 # Default rules for deployment.

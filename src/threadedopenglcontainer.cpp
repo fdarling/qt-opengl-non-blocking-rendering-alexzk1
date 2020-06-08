@@ -39,6 +39,7 @@ void ThreadedOpenGLContainer::startThread(int fps_limit)
     thread = createInQThread([this, fps_limit](TerminateIfTruePtr stopper)
     {
         const DelayMeasuredIn DELAY = std::chrono::duration_cast<DelayMeasuredIn>(std::chrono::milliseconds((fps_limit) > 0 ? static_cast<int32_t>(1000.f / fps_limit) : 1));
+
         while (!(*stopper))
         {
             DelayMeasuredIn elapsed;
@@ -62,7 +63,7 @@ void ThreadedOpenGLContainer::startThread(int fps_limit)
 void ThreadedOpenGLContainer::renderStep()
 {
     surf->render();
-    if (!surf->uses_texture)
+    if (!surf->uses_texture())
     {
         lastImage = (std::move(surf->getImage().convertToFormat(QImage::Format_RGBA8888)));
         emit readyRGBA8888(lastImage);

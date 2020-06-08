@@ -4,9 +4,9 @@
 #include "logger.h"
 #include "bind_release_wrap.h"
 
-OffscreenGL::OffscreenGL(bool use_texture, QScreen *targetScreen, const QSize &size, QObject *parent) :
+OffscreenGL::OffscreenGL(QOpenGLContext* guiContext, QScreen *targetScreen, const QSize &size, QObject *parent) :
     QObject(parent),
-    uses_texture(use_texture)
+    guiContext(guiContext)
 {
     if (QThread::currentThread() != QApplication::instance()->thread())
         throw std::runtime_error("Offscreen must be constructed from GUI thread!");
@@ -19,6 +19,9 @@ OffscreenGL::OffscreenGL(bool use_texture, QScreen *targetScreen, const QSize &s
 
     m_context = new QOpenGLContext();
     m_context->setFormat(surface->format());
+    if (guiContext)
+        m_context->setShareContext(guiContext);
+
     if (m_context->create())
     {
 
@@ -120,10 +123,9 @@ void OffscreenGL::render()
         glCheckError();
         paintGL();
         glCheckError();
-        if (uses_texture && m_texture)
+        if (uses_texture() && m_texture)
         {
-            bind_release_ptr_wrap<decltype(m_texture)> wrap(m_texture);
-            std::lock_guard<decltype(wrap)> grd(wrap);
+            BIND_PTR(m_texture);
             glCheckError(); //checks bind
 
             getFuncs()->glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, fbo->width(), fbo->height(), 0);
@@ -138,6 +140,11 @@ void OffscreenGL::render()
 QImage OffscreenGL::getImage() const
 {
     return grabNotMultiSample();
+}
+
+bool OffscreenGL::uses_texture() const
+{
+    return guiContext != nullptr;
 }
 
 void OffscreenGL::allocFbo()
@@ -164,7 +171,7 @@ void OffscreenGL::allocFbo()
     if (!fbo->isValid())
         throw std::runtime_error("OffscreenGL::allocFbo() - Failed to create background FBO!");
 
-    if (uses_texture)
+    if (uses_texture())
     {
         m_texture.reset(new QOpenGLTexture(QOpenGLTexture::Target2D), [](QOpenGLTexture * p)
         {
@@ -181,6 +188,8 @@ void OffscreenGL::allocFbo()
         });
         m_texture->allocateStorage(QOpenGLTexture::RGBA, QOpenGLTexture::UInt32_RGBA8);
         m_texture->create();
+        static_assert(std::is_same<unsigned int, GLuint>::value, "Woops! Revise those signals / slots.");
+        emit hasTextureId(m_texture->textureId());
     }
     // clear framebuffer
     if (m_functions_3_0)

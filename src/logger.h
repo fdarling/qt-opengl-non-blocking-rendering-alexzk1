@@ -13,7 +13,7 @@ namespace console_log
         std::cerr << stringfmt("File: %s, line: %u\n%s", file.c_str(), line, msg.c_str()) << std::endl;
     }
 
-    GLenum glCheckError_(uint32_t line, const std::string& file)
+    inline GLenum glCheckError_(uint32_t line, const std::string& file)
     {
         GLenum errorCode;
         while ((errorCode = glGetError()) != GL_NO_ERROR)

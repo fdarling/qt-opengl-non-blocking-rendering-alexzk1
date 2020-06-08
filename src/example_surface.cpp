@@ -1,7 +1,7 @@
 #include "example_surface.h"
 
-ExamplePaintSurface::ExamplePaintSurface(QScreen *targetScreen, const QSize &size):
-    OffscreenGL(false, targetScreen, size)
+ExamplePaintSurface::ExamplePaintSurface(QOpenGLContext *guiContext, QScreen *targetScreen, const QSize &size):
+    OffscreenGL(guiContext, targetScreen, size)
 {
     timer.start();
 }

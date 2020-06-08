@@ -13,7 +13,7 @@ class ExamplePaintSurface : public OffscreenGL
 {
     Q_OBJECT
 public:
-    ExamplePaintSurface(QScreen*  targetScreen = nullptr, const QSize& size = QSize (1, 1));
+    ExamplePaintSurface(QOpenGLContext* guiContext, QScreen*  targetScreen = nullptr, const QSize& size = QSize (1, 1));
     ~ExamplePaintSurface() override = default;
 public slots:
     void setScale(int s); //0-100

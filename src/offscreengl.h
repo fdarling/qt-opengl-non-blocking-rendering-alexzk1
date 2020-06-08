@@ -14,6 +14,8 @@
 #include <mutex>
 #include <thread>
 #include <QOpenGLTexture>
+#include <QPointer>
+
 #include "locked_object.h"
 class QThread;
 
@@ -21,7 +23,7 @@ class OffscreenGL : public QObject
 {
     Q_OBJECT
 public:
-    explicit OffscreenGL(bool use_texture, QScreen* targetScreen = nullptr, const QSize& size = QSize (1, 1), QObject *parent = nullptr);
+    explicit OffscreenGL(QOpenGLContext* guiContext = nullptr, QScreen* targetScreen = nullptr, const QSize& size = QSize (1, 1), QObject *parent = nullptr);
     ~OffscreenGL() override;
     void setOwningThread(QThread *owner);
     void prepareContext();
@@ -29,11 +31,12 @@ public:
     void render();
 
     QImage getImage() const;
-    const bool uses_texture;
+    bool uses_texture() const;
+
 public slots:
     void resize(int w, int h);
 signals:
-
+    void hasTextureId(unsigned int tex_id);
 protected:
     virtual void paintGL() = 0;
     virtual void fboRealloacted(const QSize& size);
@@ -56,7 +59,7 @@ private:
     std::shared_ptr<QOpenGLFramebufferObject> fbo{nullptr};
     std::shared_ptr<QOpenGLPaintDevice> m_paintDevice{nullptr};
     std::shared_ptr<QOpenGLTexture> m_texture{nullptr};
-
+    QPointer<QOpenGLContext> guiContext;
     void allocFbo();
 
     QImage grabNotMultiSample() const;

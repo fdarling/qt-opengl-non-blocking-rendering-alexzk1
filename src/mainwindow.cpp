@@ -7,18 +7,29 @@
 #include <QCheckBox>
 #include "cpuusage.h"
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), imageWidget(new ImageWidget)
+MainWindow::MainWindow(QWidget *parent):
+    QMainWindow(parent)
 {
     QWidget * const dummy = new QWidget;
     {
         QVBoxLayout * const vbox = new QVBoxLayout(dummy);
-        vbox->addWidget(imageWidget, 1);
 
+#ifdef USE_QIMAGE
+        imageWidget = new ImageWidget();
+        vbox->addWidget(imageWidget, 1);
+#else
+        oglWidget = new GLGUIWidget();
+        vbox->addWidget(oglWidget, 1);
+#endif
         QSlider * const slider = new QSlider;
         slider->setOrientation(Qt::Horizontal);
         slider->setRange(1, 100);
         slider->setValue(50);
+
+        //FIXME: stop use old SIGNAL/SLOT macroses. It cannot be checked by compiler
+        //there are few cases where Qt has special overloads and u can use it only by SIGNAL/SLOT
+        //consider that old and outdated for 7 years at least.
+        //also u keep repeating data, (int) is in class header and here ... try to change 20 such
         connect(slider, SIGNAL(valueChanged(int)), this, SLOT(on_horizontalSlider_valueChanged(int)));
         vbox->addWidget(slider);
 
@@ -56,7 +67,9 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 
 void MainWindow::delayedInit()
 {
-    gl.reset(new GLManager<ExamplePaintSurface>());
+
+#ifdef USE_QIMAGE
+    gl.reset(new GLManager<ExamplePaintSurface>(nullptr));
     connect(gl->thread, &ThreadedOpenGLContainer::readyRGBA8888, this, [this](const QImage & img)
     {
         imageWidget->setImage(img);
@@ -67,8 +80,18 @@ void MainWindow::delayedInit()
             once = false;
         }
     }, Qt::QueuedConnection); //it is important to have Qt::QueuedConnection here
+#else
+    gl.reset(new GLManager<ExamplePaintSurface>(oglWidget->context()));
+    connect(gl->surface, &ExamplePaintSurface::hasTextureId, oglWidget, &GLGUIWidget::setTextureToUse);
+    connect(gl->thread, &ThreadedOpenGLContainer::readyFrame, this, [this]()
+    {
+        oglWidget->update();
+    }, Qt::QueuedConnection);
+#endif
     gl->surface->resize(width(), height());
     lastFps = 0.f;
+
+    //this is new syntax of C++, checked directly by compiler
     connect(gl->thread, &ThreadedOpenGLContainer::singleRunFps, this, [this](int64_t ms_per_render)
     {
         static CpuUsage usage;

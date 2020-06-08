@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QOpenGLContext>
 #include "offscreengl.h"
 
 #include "lambda_thread.h"
@@ -36,9 +37,9 @@ struct GLManager
     Offscreen *surface{nullptr};
     ThreadedOpenGLContainer* thread{nullptr};
 
-    GLManager()
+    GLManager(QOpenGLContext *c)
     {
-        surface = new Offscreen();
+        surface = new Offscreen(c);
         thread = new ThreadedOpenGLContainer(surface);
     }
 

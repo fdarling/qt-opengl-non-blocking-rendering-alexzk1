@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QPointer>
 #include <QLabel>
+#include "glguiwidget.h"
 
 class MainWindow : public QMainWindow
 {
@@ -26,8 +27,12 @@ private slots:
     void on_Reset_clicked();
 
 private:
-    ImageWidget *imageWidget;
-    QPointer<QLabel> statusLabel{nullptr};
+#ifdef USE_QIMAGE
+    ImageWidget *imageWidget {nullptr};
+#else
+    GLGUIWidget *oglWidget {nullptr};
+#endif
+    QPointer<QLabel> statusLabel {nullptr};
     float lastFps{0.f};
     std::shared_ptr<GLManager<ExamplePaintSurface>> gl{nullptr};
 };
