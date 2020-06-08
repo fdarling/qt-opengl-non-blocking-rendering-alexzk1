@@ -103,6 +103,11 @@ void MainWindow::delayedInit()
     connect(gl->thread, &ThreadedOpenGLContainer::singleRunFps, this, [this](int64_t ms_per_render)
     {
         static CpuUsage usage;
+        static int64_t u = usage.getCpuUsage() * 100.f;
+        static uint64_t cntru = 1;
+        if ((++cntru) % 10 == 0)
+            u = usage.getCpuUsage() * 100.f;
+
 
         constexpr static float alpha = 0.5f;
         const float fps_now = 1000.f / ms_per_render;
@@ -111,7 +116,6 @@ void MainWindow::delayedInit()
         lastFps = lastFps * alpha + fps_now * (1.f - alpha);
         if (statusLabel)
         {
-            const int64_t u = usage.getCpuUsage() * 100.f;
 #ifdef USE_QIMAGE
             statusLabel->setText(QStringLiteral("FPS (thread): %1; CPU: %2%").arg(lastFps).arg(u));
 #else
