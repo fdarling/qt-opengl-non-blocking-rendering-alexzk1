@@ -60,6 +60,7 @@ void GLGUIWidget::paintGL()
         {
             if (l)
                 l->unlock();
+
         });
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glCheckError();

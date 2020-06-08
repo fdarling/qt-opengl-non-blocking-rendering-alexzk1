@@ -88,6 +88,8 @@ void MainWindow::delayedInit()
 #else
     gl.reset(new GLManager<ExamplePaintSurface>(oglWidget->context()));
 
+    connect(oglWidget, SIGNAL(frameSwapped()), oglWidget, SLOT(update()));
+
     //FIXME: uncomment to use mutex render/gui thread
     //oglWidget->setThreadLock(gl->thread->getRenderLock());
     connect(gl->surface, &ExamplePaintSurface::hasTextureId, oglWidget, &GLGUIWidget::setTextureToUse);
