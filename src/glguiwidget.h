@@ -19,10 +19,7 @@ protected:
     void resizeGL(int w, int h) override;
     void paintGL() override;
 private:
-    //using pointer to int id, so nullptr means "not set yet" like in C#
-    //and mutex just in case, as we have threads everywhere
-    mutable std::recursive_mutex tex_mut;
-    std::shared_ptr<GLuint> tex_id{nullptr};
+    std::atomic<GLuint> tex_id{0};
     int m_w{0};
     int m_h{0};
 };

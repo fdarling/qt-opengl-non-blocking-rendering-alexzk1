@@ -11,10 +11,7 @@ GLGUIWidget::GLGUIWidget(QWidget *parent) :
 void GLGUIWidget::setTextureToUse(unsigned int id)
 {
     static_assert(std::is_same<unsigned int, GLuint>::value, "Woops! Revise those signals / slots.");
-    LOCK_GUARD_ON(tex_mut);
-    if (!tex_id)
-        tex_id = std::make_shared<GLuint>();
-    *tex_id = id;
+    tex_id = id;
     std::cout << "Texture set to id: " << id << std::endl;
 }
 
@@ -34,16 +31,12 @@ void GLGUIWidget::resizeGL(int w, int h)
 
 void GLGUIWidget::paintGL()
 {
+    GLuint tid = tex_id;
+    if (!tid)
+        return;
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glCheckError();
-    GLuint tid;
-    {
-        //if texture id is not set yet, do nothing
-        LOCK_GUARD_ON(tex_mut);
-        if (!tex_id)
-            return;
-        tid = *tex_id;
-    }
 
     glMatrixMode(GL_PROJECTION);
     glCheckError();
