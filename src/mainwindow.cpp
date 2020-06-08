@@ -21,6 +21,9 @@ MainWindow::MainWindow(QWidget *parent)
         connect(slider, SIGNAL(valueChanged(int)), this, SLOT(on_horizontalSlider_valueChanged(int)));
         vbox->addWidget(slider);
 
+        statusLabel = new QLabel(this);
+        vbox->addWidget(statusLabel);
+
         QPushButton * const resetButton = new QPushButton("Reset");
         connect(resetButton, SIGNAL(clicked()), this, SLOT(on_Reset_clicked()));
         vbox->addWidget(resetButton);
@@ -64,6 +67,18 @@ void MainWindow::delayedInit()
         }
     }, Qt::QueuedConnection); //it is important to have Qt::QueuedConnection here
     gl->surface->resize(width(), height());
+    lastFps = 0.f;
+    connect(gl->thread, &ThreadedOpenGLContainer::singleRunFps, this, [this](int64_t ms_per_render)
+    {
+        constexpr static float alpha = 0.5f;
+        const float fps_now = 1000.f / ms_per_render;
+
+        //low-pass filter
+        lastFps = lastFps * alpha + fps_now * (1 - alpha);
+        if (statusLabel)
+            statusLabel->setText(QStringLiteral("FPS: %1").arg(lastFps));
+
+    }, Qt::QueuedConnection);
     gl->thread->launch(60);
 }
 

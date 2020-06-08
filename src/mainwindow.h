@@ -7,6 +7,7 @@
 #include "imagewidget.h"
 #include <QTimer>
 #include <QPointer>
+#include <QLabel>
 
 class MainWindow : public QMainWindow
 {
@@ -26,6 +27,8 @@ private slots:
 
 private:
     ImageWidget *imageWidget;
+    QPointer<QLabel> statusLabel{nullptr};
+    float lastFps{0.f};
     std::shared_ptr<GLManager<ExamplePaintSurface>> gl{nullptr};
 };
 #endif // MAINWINDOW_H

@@ -14,7 +14,8 @@ public:
 public slots:
     void launch(int fps_limit = 0);
 signals:
-    void readyRGBA8888(const QImage& img);
+    void readyRGBA8888(const QImage& img); //launched from thread
+    void singleRunFps(int64_t elapsed); //launched from thread
 protected:
     LambdaThreadPtr thread{nullptr};
 

@@ -41,10 +41,13 @@ void ThreadedOpenGLContainer::startThread(int fps_limit)
         const DelayMeasuredIn DELAY = std::chrono::duration_cast<DelayMeasuredIn>(std::chrono::milliseconds((fps_limit) > 0 ? static_cast<int32_t>(1000.f / fps_limit) : 1));
         while (!(*stopper))
         {
-
-            DelayBlockMs<DelayMeasuredIn> delay(DELAY);//defines FPS, however it is MS delay ...
-            (void)delay;
-            renderStep();
+            DelayMeasuredIn elapsed;
+            {
+                DelayBlockMs<DelayMeasuredIn> delay(DELAY, &elapsed);//defines FPS, however it is MS delay ...
+                (void)delay;
+                renderStep();
+            }
+            emit singleRunFps(std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count());
         }
 
         const auto t = QApplication::instance()->thread();
